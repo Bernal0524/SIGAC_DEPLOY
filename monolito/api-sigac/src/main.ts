@@ -8,9 +8,12 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const frontendOrigin = process.env.FRONTEND_ORIGIN ?? 'http://localhost:3001';
+  // ✅ CORS CORREGIDO (FRONTEND LOCAL + PRODUCCIÓN)
   app.enableCors({
-    origin: frontendOrigin,
+    origin: [
+      'http://localhost:3001',
+      'https://erick-bernal-app.onrender.com',
+    ],
     credentials: true,
   });
 
@@ -39,13 +42,18 @@ async function bootstrap() {
       'JWT-auth',
     )
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
+
+  // ✅ Swagger accesible en producción
   SwaggerModule.setup('docs', app, document);
 
   const port = Number(process.env.PORT) || 3000;
   await app.listen(port);
+
   Logger.log(
-    `SIGAC API on http://127.0.0.1:${port} — Swagger: http://127.0.0.1:${port}/docs`,
+    `SIGAC API running on port ${port} — Docs: /docs`,
   );
 }
+
 void bootstrap();
